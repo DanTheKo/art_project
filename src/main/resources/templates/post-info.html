@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Информация о записи</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script>
+        function save(){
+            window.history.back();
+        }
+    </script>
+</head>
+
+<body >
+<div class="container">
+    <div th:replace="~{navigation :: navi('Home')}"></div>
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>ID</th>
+            <td th:text="${post.post_id}"></td>
+        </tr>
+        <tr>
+            <th>Текст записи</th>
+            <td th:text="${post.post_text}"></td>
+        </tr>
+        <tr>
+            <th>Время создания</th>
+            <td th:text="${post.created_at}"></td>
+        </tr>
+        <tr>
+            <th>Пользователь</th>
+            <td th:text="${post.user.getUsername()}"></td>
+        </tr>
+    </table>
+    <form th:action="@{/}">
+<!--        <button style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>-->
+    </form>
+    <button onclick="save()" style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>
+
+</div>
+</body>
+</html>

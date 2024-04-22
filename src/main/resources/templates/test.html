@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8"/>
+    <title>Список записей</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            padding: 35px;
+        }
+
+        .input-file-row {
+            display: inline-block;
+        }
+        .input-file {
+            position: relative;
+            display: inline-block;
+        }
+        .input-file span {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            outline: none;
+            text-decoration: none;
+            font-size: 14px;
+            vertical-align: middle;
+            color: rgb(255 255 255);
+            text-align: center;
+            border-radius: 4px;
+            background-color: #419152;
+            line-height: 22px;
+            height: 40px;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            border: none;
+            margin: 0;
+            transition: background-color 0.2s;
+        }
+        .input-file input[type=file] {
+            position: absolute;
+            z-index: -1;
+            opacity: 0;
+            display: block;
+            width: 0;
+            height: 0;
+        }
+
+        /* Focus */
+        .input-file input[type=file]:focus + span {
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        /* Hover/active */
+        .input-file:hover span {
+            background-color: #59be6e;
+        }
+        .input-file:active span {
+            background-color: #2E703A;
+        }
+
+        /* Disabled */
+        .input-file input[type=file]:disabled + span {
+            background-color: #eee;
+        }
+
+        /* Список c превью */
+        .input-file-list {
+            padding: 10px 0;
+        }
+        .input-file-list-item {
+            display: inline-block;
+            margin: 0 15px 15px;
+            width: 150px;
+            vertical-align: top;
+            position: relative;
+        }
+        .input-file-list-item img {
+            width: 150px;
+        }
+        .input-file-list-name {
+            text-align: center;
+            display: block;
+            font-size: 12px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .input-file-list-remove {
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            top: 5px;
+            right: 5px;
+            background: #ff0202;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+            line-height: 16px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+<form method="post" enctype="multipart/form-data">
+    <div class="input-file-row">
+        <label class="input-file">
+            <input type="file" name="file[]" multiple accept="image/*">
+            <span>Выберите файл</span>
+        </label>
+        <div class="input-file-list"></div>
+    </div>
+</form>
+</body>
+
+
+
+
+<script>
+    var dt = new DataTransfer();
+
+    $('.input-file input[type=file]').on('change', function(){
+        let $files_list = $(this).closest('.input-file').next();
+        $files_list.empty();
+
+        for(var i = 0; i < this.files.length; i++){
+            let file = this.files.item(i);
+            dt.items.add(file);
+
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function(){
+                let new_file_input = '<div class="input-file-list-item">' +
+                    '<img class="input-file-list-img" src="' + reader.result + '">' +
+                    '<span class="input-file-list-name">' + file.name + '</span>' +
+                    '<a href="#" onclick="removeFilesItem(this); return false;" class="input-file-list-remove">x</a>' +
+                    '</div>';
+                $files_list.append(new_file_input);
+            }
+        };
+        this.files = dt.files;
+    });
+
+    function removeFilesItem(target){
+        let name = $(target).prev().text();
+        let input = $(target).closest('.input-file-row').find('input[type=file]');
+        $(target).closest('.input-file-list-item').remove();
+        for(let i = 0; i < dt.items.length; i++){
+            if(name === dt.items[i].getAsFile().name){
+                dt.items.remove(i);
+            }
+        }
+        input[0].files = dt.files;
+    }
+</script>
