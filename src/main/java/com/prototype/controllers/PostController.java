@@ -37,8 +37,6 @@ public class PostController {
     private UserService userService;
     private ImageService imageService;
     private UserDetailsService userDetailsService;
-
-
     @Autowired
     public void setPostService(PostService postService) {
         this.postService = postService;
@@ -54,34 +52,15 @@ public class PostController {
         this.imageService = imageService;
     }
 
-
-
-    String text;
-    LocalDate start;
-    LocalDate end;
-
-
     @GetMapping("")
     @Transactional(readOnly = true)
-    public String showPostsList(Principal principal, Model model, @RequestParam(defaultValue = "0") int page) {
+    public String showPostsList(Principal principal, Model model) {
         try {
             List<Post> list = postService.getAllPosts();
             for(Post post: list){
                 System.out.println(post.getImages().size());
             }
             model.addAttribute("posts", list);
-            //Pageable pageable = PageRequest.of(page, 5);
-            if (principal != null) {
-                //Page<Post> postPage = postService.getAllPostsUser(pageable, userService.getUserByUserName(principal.getName()));
-
-//                model.addAttribute("post", new Post());
-//            model.addAttribute("currentPage", page);
-
-                text = null;
-                start = null;
-                end = null;
-
-            }
         }
         catch (Exception e){
             e.printStackTrace();
@@ -107,19 +86,7 @@ public class PostController {
         post.setImages(images);
         postService.add(post);
 
-        String str = "redirect:/posts/filter?text=";
-        if (text != null) {
-            str += text;
-        }
-        str += "&start=";
-        if (start != null) {
-            str += start.toString();
-        }
-        str += "&end=";
-        if (end != null) {
-            str += end.toString();
-        }
-        return str;
+        return "redirect:/posts/filter?text=";
     }
 
     @GetMapping("/posts/addOrUpdate/add")
@@ -144,19 +111,7 @@ public class PostController {
     public String editPost(@ModelAttribute(value = "post") Post updated) {
         Post post = postService.getById(updated.getPost_id());
         postService.update(post.getPost_id(), updated);
-        String str = "redirect:/posts/filter?text=";
-        if (text != null) {
-            str += text;
-        }
-        str += "&start=";
-        if (start != null) {
-            str += start.toString();
-        }
-        str += "&end=";
-        if (end != null) {
-            str += end.toString();
-        }
-        return str;
+        return "redirect:/posts/filter?text=";
     }
 
     @GetMapping("/posts/show/{id}")
@@ -174,46 +129,17 @@ public class PostController {
     public String filterPost(Principal principal, Model model,
                              @RequestParam(value = "text", required = false) String text,
                              @RequestParam(value = "start", required = false) LocalDate startDate,
-                             @RequestParam(value = "end", required = false) LocalDate endDate,
-                             @RequestParam(defaultValue = "0") int page) throws ParseException {
+                             @RequestParam(value = "end", required = false) LocalDate endDate){
 
-
-        Pageable pageable = PageRequest.of(page, 5);
-        Page<Post> postPage;
         if (principal != null) {
-            postPage = postService.FilterAndGetAllPosts(text, startDate, endDate, userService.getUserByUserName(principal.getName()), pageable);
-            if (text != null) {
-                this.text = text;
-            }
-            if (startDate != null) {
-                this.start = startDate;
-            }
-            if (endDate != null) {
-                this.end = endDate;
-            }
-
             List<Post> list = postService.getAllPosts();
             for(Post post: list){
                 System.out.println(post.getImages().size());
             }
-
-
             model.addAttribute("posts", list);
-            model.addAttribute("post", new Post());
             model.addAttribute("text", text);
             model.addAttribute("start", startDate);
             model.addAttribute("end", endDate);
-//            model.addAttribute("currentPage", page);
-//            model.addAttribute("totalPages", postPage.getTotalPages());
-
-//            List<Post> topPosts = postService.getTopPosts();
-//            model.addAttribute("topPosts", topPosts);
-
-            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString("/posts/filter");
-            if (text != null && !text.isEmpty()) uriBuilder.queryParam("text", text);
-            if (startDate != null) uriBuilder.queryParam("start", startDate);
-            if (endDate != null) uriBuilder.queryParam("end", endDate);
-            model.addAttribute("filterUrl", uriBuilder.build().toString());
         }
         return "posts";
     }
@@ -236,18 +162,7 @@ public class PostController {
     public String deletePost(@PathVariable(value = "id") Integer id) {
         Post post = postService.getById(id);
         postService.delete(post);
-        String str = "redirect:/posts/filter?text=";
-        if (text != null) {
-            str += text;
-        }
-        str += "&start=";
-        if (start != null) {
-            str += start.toString();
-        }
-        str += "&end=";
-        if (end != null) {
-            str += end.toString();
-        }
-        return str;
+
+        return "redirect:/posts/filter?text=";
     }
 }
