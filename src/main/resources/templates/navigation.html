@@ -21,10 +21,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-<!--                <li class="nav-item" th:classappend="${activeTab == 'Home' ? 'active' : ''}">-->
-<!--                    <a class="nav-link" style="color: white" th:href="@{/}">Главная страница<span-->
-<!--                            class="sr-only">(current)</span></a>-->
-<!--                </li>-->
                 <li sec:authorize="isAuthenticated()" class="nav-item"
                     th:classappend="${activeTab == 'posts' ? 'active' : ''}">
                     <a class="nav-link" style="color: white" th:href="@{/posts/addOrUpdate/add}">Добавить запись</a>
@@ -49,9 +45,6 @@
                         <button class="btn btn-danger" type="submit">Logout</button>
                     </form>
                 </li>
-<!--                <li sec:authorize="isAnonymous()" class="nav-item" style="margin-left: 15px">-->
-<!--                    <span id="error-message" class="nav-link" >Для просмотра авторизуйтесь</span>-->
-<!--                </li>-->
                 <li class="nav-item">
                     <div th:if="${param.error} != null">
                         <span style="color: white;padding: 10px">Invalid username and password.</span>

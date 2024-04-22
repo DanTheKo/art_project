@@ -33,5 +33,3 @@ public class User {
     private List<Post> posts;
 
 }
-
-//http://localhost:8189/demo/posts

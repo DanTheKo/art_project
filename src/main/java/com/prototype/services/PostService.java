@@ -34,36 +34,21 @@ public class PostService {
     public List<Post> getAllPosts() {
         return repository.findAll();
     }
-    public Page<Post> getAllPostsPageable(Pageable pageable) {
-        return repository.findAll(pageable);
-    }
 
     @Transactional
-    public Page<Post> getAllPostsUser(Pageable pageable, User  user) {
+    public List<Post> getAllPostsUser(User  user) {
         Specification<Post> specification;
         if(!user.getAuthority().getAuthority().equals("ROLE_ADMIN")){
             specification = Specification
                     .where(PostSpecifications.hasUser(user));
-            return repository.findAll(specification,  pageable);
+            return repository.findAll(specification);
         }
         else{
-            return repository.findAll(pageable);
+            return repository.findAll();
         }
-
-
     }
 
-//    public List<Post> getAllPostsOld(String text, LocalDate startDate, LocalDate endDate) throws ParseException {
-//
-//        return repository.findAll().stream()
-//                .filter(a -> text.isBlank()|| a.getPost_text().contains(text))
-//                .filter(a -> startDate == null || a.getCreated_at().isAfter(startDate.atStartOfDay()))
-//                .filter(a -> endDate == null || a.getCreated_at().isBefore(endDate.atTime(23, 59, 59)))
-//                .collect(Collectors.toList());
-//    }
-
-
-    public Page<Post> FilterAndGetAllPosts(String text, LocalDate startDate, LocalDate endDate, User user, Pageable pageable) throws ParseException {
+    public List<Post> FilterAndGetAllPosts(String text, LocalDate startDate, LocalDate endDate, User user){
         Specification<Post> specification;
         if(!user.getAuthority().getAuthority().equals("ROLE_ADMIN")){
             specification = Specification
@@ -78,7 +63,7 @@ public class PostService {
                     .and(PostSpecifications.afterDate(startDate))
                     .and(PostSpecifications.beforeDate(endDate));
         }
-        return repository.findAll(specification,  pageable);
+        return repository.findAll(specification);
 
 //        Specification<Post> specification = Specification
 //                .where(PostSpecifications.hasText(text))
@@ -90,12 +75,11 @@ public class PostService {
 //        return repository.findAll(specification, pageable);
     }
 
-
-    public List<Post> getTopPosts() {
-        Pageable topPageable = PageRequest.of(0, 3, Sort.by(Sort.Order.desc("views")));
-        Page<Post> topPostsPages = repository.findAll(topPageable);
-        return topPostsPages.getContent();
-    }
+//    public List<Post> getTopPosts() {
+//        Pageable topPageable = PageRequest.of(0, 3, Sort.by(Sort.Order.desc("views")));
+//        Page<Post> topPostsPages = repository.findAll(topPageable);
+//        return topPostsPages.getContent();
+//    }
 
     @Transactional
     public void add(Post post) {
@@ -112,13 +96,10 @@ public class PostService {
         Post post = getPostById(id);
         if (post != null) {
             post.setPost_text(updated.getPost_text());
-//            post.setLikes(updated.getLikes());
-//            post.setUser(updated.getUser());
             post.setCreated_at(updated.getCreated_at());
             repository.save(post);
         }
     }
-
     public void incrementViews(Post post){
         post.setViews(post.getViews() + 1);
         repository.save(post);

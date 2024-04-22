@@ -27,26 +27,23 @@
             <th>Текст записи</th>
             <th>Время создания</th>
             <th>Пользователь</th>
-            <th>Пикчи</th>
+            <th>Картинки</th>
             <th sec:authorize="isAuthenticated()">Действия</th>
         </tr>
         </thead>
         <tbody>
-<!--        sec:authorize="isAuthenticated()"-->
         <tr  th:each="post : ${posts}">
             <td th:text="${post.post_id}"/>
-            <td th:text="${post.post_text}"/>
+            <td style="font-size: 2rem" th:text="${post.post_text}"/>
             <td th:text="${post.created_at}"/>
             <td th:text="${post.user.getUsername()}"/>
             <td th:each="image : ${post.images}">
                 <div class="image-frame">
-                    <img width="500px" height="500px" th:src="@{'data:image/;base64,'+${image.change()}}" alt="sss"/>
-                    <!--                <p th:text="${image.getFileName()}"></p>-->
+                    <img width="600px" height="600px" th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}" alt="sss"/>
                 </div>
 
             </td>
-<!--            sec:authorize="isAuthenticated()"-->
-            <td >
+            <td sec:authorize="isAuthenticated()">
                 <a th:href="@{'/posts/show/' + ${post.post_id}}"  th:text="Просмотреть"/>
                 <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
                    th:href="@{'/posts/addOrUpdate/edit/' + ${post.post_id}}" th:text="Редактировать"
@@ -65,7 +62,7 @@
 <!--            </li>-->
 <!--        </ul>-->
 <!--    </nav>-->
-    <br>
+<!--    <br>-->
 <!--    <form th:action="@{/posts/addOrUpdate/add}">-->
 <!--        <button type="submit" sec:authorize="isAuthenticated()" class="btn btn-success">Добавить запись</button>-->
 <!--    </form>-->

@@ -55,15 +55,29 @@ public class PostController {
     @GetMapping("")
     @Transactional(readOnly = true)
     public String showPostsList(Principal principal, Model model) {
-        try {
+        List<Post> list = postService.getAllPosts();
+        for(Post post: list){
+            System.out.println(post.getImages().size());
+        }
+        model.addAttribute("posts", list);
+        return "posts";
+    }
+    @GetMapping("/posts/filter")
+    @Transactional
+    public String filterPost(Principal principal, Model model,
+                             @RequestParam(value = "text", required = false) String text,
+                             @RequestParam(value = "start", required = false) LocalDate startDate,
+                             @RequestParam(value = "end", required = false) LocalDate endDate){
+
+        if (principal != null) {
             List<Post> list = postService.getAllPosts();
             for(Post post: list){
                 System.out.println(post.getImages().size());
             }
             model.addAttribute("posts", list);
-        }
-        catch (Exception e){
-            e.printStackTrace();
+            model.addAttribute("text", text);
+            model.addAttribute("start", startDate);
+            model.addAttribute("end", endDate);
         }
         return "posts";
     }
@@ -93,8 +107,6 @@ public class PostController {
     @Transactional
     public String getAddPost(Principal principal, Model model) {
         if (principal != null) {
-            Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(0, 5), userService.getUserByUserName(principal.getName()));
-            model.addAttribute("posts", postPage.getContent());
             model.addAttribute("post", new Post());
         }
         return "addOrUpdate";
@@ -120,28 +132,6 @@ public class PostController {
         postService.incrementViews(post);
         model.addAttribute("post", post);
         return "post-info";
-
-
-    }
-
-    @GetMapping("/posts/filter")
-    @Transactional
-    public String filterPost(Principal principal, Model model,
-                             @RequestParam(value = "text", required = false) String text,
-                             @RequestParam(value = "start", required = false) LocalDate startDate,
-                             @RequestParam(value = "end", required = false) LocalDate endDate){
-
-        if (principal != null) {
-            List<Post> list = postService.getAllPosts();
-            for(Post post: list){
-                System.out.println(post.getImages().size());
-            }
-            model.addAttribute("posts", list);
-            model.addAttribute("text", text);
-            model.addAttribute("start", startDate);
-            model.addAttribute("end", endDate);
-        }
-        return "posts";
     }
 
     @PostMapping("/authenticateTheUser")
@@ -162,7 +152,6 @@ public class PostController {
     public String deletePost(@PathVariable(value = "id") Integer id) {
         Post post = postService.getById(id);
         postService.delete(post);
-
         return "redirect:/posts/filter?text=";
     }
 }

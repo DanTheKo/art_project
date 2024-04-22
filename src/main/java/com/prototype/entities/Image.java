@@ -2,14 +2,9 @@ package com.prototype.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.Base64;
-
 
 @Entity
 @NoArgsConstructor
@@ -35,10 +30,8 @@ public class Image {
     @Column(name = "data", nullable = false)
     @Lob
     private byte[] data;
-    public String change(){
-        Image image = this;
-        Base64 Base64 = null;
-        return java.util.Base64.getEncoder().encodeToString(image.getData());
+    public String ConvertBytesToBase64(){
+        return java.util.Base64.getEncoder().encodeToString(this.getData());
     }
 
 }

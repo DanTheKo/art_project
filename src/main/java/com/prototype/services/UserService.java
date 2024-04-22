@@ -13,21 +13,17 @@ import java.util.List;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
-
     public User getUserById(Integer id) {
         return userRepository.findById(id).orElse(null);
     }
-
     @Transactional
     public User getUserByUserName(String username) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) throw  new UsernameNotFoundException(username);
         return user;
     }
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

@@ -45,12 +45,4 @@ public class Post {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    public void setPost_text(String post_text) {
-        this.post_text = post_text;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
 }

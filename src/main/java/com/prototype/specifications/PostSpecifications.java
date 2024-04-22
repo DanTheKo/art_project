@@ -37,7 +37,6 @@ public class PostSpecifications {
             return builder.lessThanOrEqualTo(root.get("created_at"), date);
         });
     }
-
     public static Specification<Post> hasUser(User user) {
         return ((root, query, builder) -> {
             if (user == null) {
@@ -46,12 +45,4 @@ public class PostSpecifications {
             return builder.equal(root.get("user"), user);
         });
     }
-//    public static Specification<Post> isAdmin(Authority authority) {
-//        return ((root, query, builder) -> {
-//            if (authority == null) {
-//                return builder.conjunction();
-//            }
-//            return builder.equal(root.get("authority"), authority);
-//        });
-//    }
 }
