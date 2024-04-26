@@ -45,9 +45,8 @@ public class UserService {
         User user = userRepository.findUserByUsername(username);
         return (user != null && user.getAuthority() != null) ? user.getAuthority().getAuthority() : null;
     }
-    public void encode(String username) {
+    public void encode(User user) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        User user = userRepository.findUserByUsername(username);
         String enc = passwordEncoder.encode(user.getPassword());
         user.setPassword(enc);
         userRepository.save(user);

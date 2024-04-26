@@ -37,7 +37,7 @@ public class Post {
     @Column(name = "views")
     private Integer views;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Image> images;
 
     @ManyToOne

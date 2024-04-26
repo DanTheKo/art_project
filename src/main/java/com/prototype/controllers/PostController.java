@@ -1,7 +1,9 @@
 package com.prototype.controllers;
 
+import com.prototype.entities.Authority;
 import com.prototype.entities.Image;
 import com.prototype.entities.Post;
+import com.prototype.entities.User;
 import com.prototype.services.ImageService;
 import com.prototype.services.PostService;
 import com.prototype.services.UserService;
@@ -52,16 +54,14 @@ public class PostController {
         this.imageService = imageService;
     }
 
-    @GetMapping("")
+    @GetMapping("/")
     @Transactional(readOnly = true)
     public String showPostsList(Principal principal, Model model) {
         List<Post> list = postService.getAllPosts();
-        for(Post post: list){
-            System.out.println(post.getImages().size());
-        }
         model.addAttribute("posts", list);
         return "posts";
     }
+
     @GetMapping("/posts/filter")
     @Transactional
     public String filterPost(Principal principal, Model model,
@@ -71,15 +71,35 @@ public class PostController {
 
         if (principal != null) {
             List<Post> list = postService.getAllPosts();
-            for(Post post: list){
-                System.out.println(post.getImages().size());
-            }
             model.addAttribute("posts", list);
             model.addAttribute("text", text);
             model.addAttribute("start", startDate);
             model.addAttribute("end", endDate);
         }
         return "posts";
+    }
+    @GetMapping("/posts/login")
+    @Transactional(readOnly = true)
+    public String login(Principal principal, Model model) {
+        return "/login";
+    }
+    @GetMapping("/posts/registration")
+    @Transactional(readOnly = true)
+    public String register(Principal principal, Model model) {
+        model.addAttribute("user", new User());
+        return "/registration";
+    }
+    @PostMapping("/posts/registration/newUser")
+    public String newUser(@ModelAttribute(value = "user")User user, Model model) {
+
+        Authority authority = new Authority();
+        authority.setUser(user);
+        authority.setAuthority("ROLE_USER");
+        user.setAuthority(authority);
+        user.setRealName(user.getUsername());
+        userService.encode(user);
+        userService.saveUser(user);
+        return "redirect:/posts/login";
     }
 
     @PostMapping("/posts/addOrUpdate/add")
@@ -145,7 +165,7 @@ public class PostController {
                 return "redirect:/posts";
             }
         }
-        return "posts";
+        return "/login";
     }
 
     @GetMapping("/posts/delete/{id}")

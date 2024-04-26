@@ -25,7 +25,7 @@ public class SecurityConfig {
                         .requestMatchers("/posts/filter/**").authenticated()
                         .anyRequest().permitAll())
                 .formLogin((form) -> form
-                        .loginPage("/")
+                        .loginPage("/posts/login")
                         .loginProcessingUrl("/authenticateTheUser")
                         .permitAll())
                 .logout((logout) -> logout
