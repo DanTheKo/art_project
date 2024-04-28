@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,22 +15,22 @@ import java.util.List;
 @Entity
 @Table(name = "post")
 public class Post {
-    public Post(String post_text, LocalDateTime created_at) {
-        this.post_text = post_text;
-        this.created_at = created_at;
+    public Post(String post_text, LocalDateTime createdAt) {
+        this.postText = post_text;
+        this.createdAt = createdAt;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name  = "post_id")
-    private long post_id;
+    private long postId;
 
     @Getter
     @Column(name  = "post_text")
-    private String post_text;
+    private String postText;
 
     @Getter
     @Column(name  = "created_at")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column(name = "views")
     private Integer views;
@@ -44,5 +42,8 @@ public class Post {
     @JoinColumn(name = "username")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+
+
 
 }

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -48,6 +47,9 @@ public class PostService {
         }
     }
 
+    public Page<Post> getAllPostsUser( Pageable pageable) {
+            return repository.findAll(pageable);
+    }
     public List<Post> FilterAndGetAllPosts(String text, LocalDate startDate, LocalDate endDate, User user){
         Specification<Post> specification;
         if(!user.getAuthority().getAuthority().equals("ROLE_ADMIN")){
@@ -95,8 +97,8 @@ public class PostService {
     public void update(Long id, Post updated) {
         Post post = getPostById(id);
         if (post != null) {
-            post.setPost_text(updated.getPost_text());
-            post.setCreated_at(updated.getCreated_at());
+            post.setPostText(updated.getPostText());
+            post.setCreatedAt(updated.getCreatedAt());
             repository.save(post);
         }
     }

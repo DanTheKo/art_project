@@ -9,26 +9,18 @@ import com.prototype.services.PostService;
 import com.prototype.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,28 +48,44 @@ public class PostController {
 
     @GetMapping("/")
     @Transactional(readOnly = true)
-    public String showPostsList(Principal principal, Model model) {
-        List<Post> list = postService.getAllPosts();
+    public String showPostsList( Principal principal, Model model, @RequestParam(defaultValue = "0") int page) {
+        Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
+        List<Post> list = postPage.toList();
         model.addAttribute("posts", list);
+        model.addAttribute("filterUrl", "/");
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("page", page);
         return "posts";
     }
 
-    @GetMapping("/posts/filter")
-    @Transactional
-    public String filterPost(Principal principal, Model model,
-                             @RequestParam(value = "text", required = false) String text,
-                             @RequestParam(value = "start", required = false) LocalDate startDate,
-                             @RequestParam(value = "end", required = false) LocalDate endDate){
-
-        if (principal != null) {
-            List<Post> list = postService.getAllPosts();
-            model.addAttribute("posts", list);
-            model.addAttribute("text", text);
-            model.addAttribute("start", startDate);
-            model.addAttribute("end", endDate);
-        }
+    @GetMapping("/loadMore")
+    public String loadMore( Model model,@RequestParam(defaultValue = "0") int page) {
+        // Получить данные следующей страницы
+        Page<Post> posts = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
+        // Добавить данные к модели и вернуть представление
+        model.addAttribute("posts", posts.toList());
         return "posts";
     }
+    @GetMapping("/posts")
+    public String redirect() {
+        return "redirect:/";
+    }
+//    @GetMapping("/posts/filter")
+//    @Transactional
+//    public String filterPost(Principal principal, Model model,
+//                             @RequestParam(value = "text", required = false) String text,
+//                             @RequestParam(value = "start", required = false) LocalDate startDate,
+//                             @RequestParam(value = "end", required = false) LocalDate endDate){
+//
+//        if (principal != null) {
+//            List<Post> list = postService.getAllPosts();
+//            model.addAttribute("posts", list);
+//            model.addAttribute("text", text);
+//            model.addAttribute("start", startDate);
+//            model.addAttribute("end", endDate);
+//        }
+//        return "posts";
+//    }
     @GetMapping("/posts/login")
     @Transactional(readOnly = true)
     public String login(Principal principal, Model model) {
@@ -120,7 +128,7 @@ public class PostController {
         post.setImages(images);
         postService.add(post);
 
-        return "redirect:/posts/filter?text=";
+        return "redirect:/posts";
     }
 
     @GetMapping("/posts/addOrUpdate/add")
@@ -141,8 +149,8 @@ public class PostController {
 
     @PostMapping("/posts/addOrUpdate/edit/update")
     public String editPost(@ModelAttribute(value = "post") Post updated) {
-        Post post = postService.getById(updated.getPost_id());
-        postService.update(post.getPost_id(), updated);
+        Post post = postService.getById(updated.getPostId());
+        postService.update(post.getPostId(), updated);
         return "redirect:/posts/filter?text=";
     }
 
@@ -172,6 +180,6 @@ public class PostController {
     public String deletePost(@PathVariable(value = "id") Integer id) {
         Post post = postService.getById(id);
         postService.delete(post);
-        return "redirect:/posts/filter?text=";
+        return "redirect:/posts";
     }
 }

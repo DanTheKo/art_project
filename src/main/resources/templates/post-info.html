@@ -8,32 +8,41 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 </head>
 
-<body >
+<body>
 <div class="container">
     <div th:replace="~{navigation :: navi('Home')}"></div>
     <table class="table">
         <tbody>
         <tr>
             <th>ID</th>
-            <td th:text="${post.post_id}"></td>
+            <td th:text="${post.getPostId()}"></td>
         </tr>
         <tr>
             <th>Текст записи</th>
-            <td th:text="${post.post_text}"></td>
+            <td th:text="${post.getCreatedAt()}"></td>
         </tr>
         <tr>
             <th>Время создания</th>
-            <td th:text="${post.created_at}"></td>
+            <td th:text="${post.getCreatedAt()}"></td>
         </tr>
         <tr>
             <th>Пользователь</th>
             <td th:text="${post.user.getUsername()}"></td>
         </tr>
     </table>
+    <div style="width: 1000px" class="container">
+        <div class="card-body">
+            <div style="display: flex" class="image-frame" th:each="image : ${post.getImages()}">
+                <img style="padding: 15px; margin: auto; max-height: 600px; border-radius: 25px; " class="img-fluid"
+                     th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}"
+                     alt="Post Image"/>
+            </div>
+        </div>
+    </div>
     <form th:action="@{/}">
         <button style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>
     </form>
-<!--    <button onclick="save()" style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>-->
+    <!--    <button onclick="save()" style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>-->
 
 </div>
 </body>
