@@ -18,73 +18,51 @@
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
     </style>
-    <script>
-        const loadMoreButton = document.getElementById("load-more-button");
-        const totalPages = 10; // Общее количество страниц
-
-        loadMoreButton.addEventListener("click", (e) => {
-            e.preventDefault();
-
-            // Получить текущую страницу из URL
-            const url = new URL(loadMoreButton.href);
-            const page = parseInt(url.searchParams.get("page"));
-
-            // Проверить, достигнута ли последняя страница
-            if (page >= totalPages) {
-                loadMoreButton.style.display = "none";
-                return;
-            }
-
-            // Отправить запрос AJAX за данными следующей страницы
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", loadMoreButton.href);
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Получить HTML-фрагмент следующей страницы
-                    const fragment = xhr.responseText;
-
-                    // Добавить HTML-фрагмент к существующему списку изображений
-                    const images = document.getElementById("image-list");
-                    images.innerHTML += fragment;
-
-                    // Обновить ссылку "Загрузить еще" для следующей страницы
-                    loadMoreButton.href = url.origin + url.pathname + "?page=" + (page + 1);
-                }
-            };
-            xhr.send();
-        });
-    </script>
 </head>
 
 <body>
 <div th:replace="~{navigation :: navi('Home')}"></div>
 <div style="margin-left: 50px;margin-right: 50px">
     <div style="width: 750px" class="container">
-        
-        <div th:each="post : ${posts}" style="background: #f3f3f3" class="card mb-3">
-            <div class="card-header">
-                <h5 class="card-title" th:text="${post.getUser().getUsername()}"></h5>
-                <p class="card-text text-muted" th:text="${post.getCreatedAt()}"></p>
-            </div>
-            <div class="card-body">
-                <p class="card-header" style="font-size: 1.5rem;" th:text="${post.getPostText()}"></p>
-                <div  style="display: flex"  class="image-frame" th:each="image : ${post.getImages()}"  >
-                    <img style="padding: 15px; margin: auto; max-height: 600px; border-radius: 25px; " class="img-fluid" th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}"
-                         alt="Post Image" />
+        <div id="postList">
+            <div th:each="post : ${posts}" style="background: #f3f3f3" class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title" th:text="${post.getUser().getUsername()}"></h5>
+                    <p class="card-text text-muted" th:text="${post.getCreatedAt()}"></p>
+                </div>
+                <div class="card-body">
+                    <p class="card-header" style="font-size: 1.5rem;" th:text="${post.getPostText()}"></p>
+                    <div  style="display: flex"  class="image-frame" th:each="image : ${post.getImages()}"  >
+                        <img style="padding: 15px; margin: auto; max-height: 600px; border-radius: 25px; " class="img-fluid" th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}"
+                             alt="Post Image" />
+                    </div>
+                </div>
+                <div style="color: white" class="card-footer ">
+                    <a th:href="@{'/posts/show/' + ${post.getPostId()}}" class="btn btn-dark">Просмотреть</a>
+                    <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
+                       th:href="@{'/posts/addOrUpdate/edit/' + ${post.getPostId()}}"
+                       class="btn btn-dark">Редактировать</a>
+                    <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
+                       th:href="@{'/posts/delete/' + ${post.getPostId()}}" class="btn btn-dark">Удалить</a>
                 </div>
             </div>
-            <div style="color: white" class="card-footer ">
-                <a th:href="@{'/posts/show/' + ${post.getPostId()}}" class="btn btn-dark">Просмотреть</a>
-                <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
-                   th:href="@{'/posts/addOrUpdate/edit/' + ${post.getPostId()}}"
-                   class="btn btn-dark">Редактировать</a>
-                <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
-                   th:href="@{'/posts/delete/' + ${post.getPostId()}}" class="btn btn-dark">Удалить</a>
-            </div>
         </div>
-        <div id="load-more-section" >
-            <a th:href="@{/(page=${page + 1})}" class="btn btn-primary" id="load-more-button">Загрузить еще</a>
-        </div>
+
+        <button style="margin-bottom: 80px; height: 60px" class="container btn btn-dark " id="loadMoreBtn" th:if="${!posts.isEmpty()}" onclick="loadMorePosts()">Загрузить еще</button>
+        <script th:inline="javascript">
+            var nextPage = 1;
+            function loadMorePosts() {
+                const url = '/?page=' + nextPage;
+
+                $.get(url, function(data) {
+                    $('#postList').append($(data).find('#postList').html());
+                });
+                nextPage++;
+            }
+        </script>
+<!--        <div id="load-more-section" >-->
+<!--            <a th:href="@{/(page=${page + 1})}" class="btn btn-primary" id="load-more-button">Загрузить еще</a>-->
+<!--        </div>-->
 <!--        <nav aria-label="Page navigation" th:if="${totalPages > 0}">-->
 <!--            <ul class="pagination">-->
 <!--                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}">-->
@@ -94,80 +72,4 @@
 <!--        </nav>-->
     </div>
 </div>
-
-
-
-<!--    <table class="table table-hover">-->
-<!--        <thead>-->
-<!--        <tr>-->
-<!--            <th>ID</th>-->
-<!--            <th>Текст записи</th>-->
-<!--            <th>Время создания</th>-->
-<!--            <th>Пользователь</th>-->
-<!--            <th>Картинки</th>-->
-<!--            <th sec:authorize="isAuthenticated()">Действия</th>-->
-<!--        </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--        <tr  th:each="post : ${posts}">-->
-<!--            <td th:text="${post.post_id}"/>-->
-<!--            <td style="font-size: 2rem" th:text="${post.post_text}"/>-->
-<!--            <td th:text="${post.created_at}"/>-->
-<!--            <td th:text="${post.user.getUsername()}"/>-->
-<!--            <td th:each="image : ${post.images}">-->
-<!--                <div class="image-frame">-->
-<!--                    <img width="600px" height="600px" th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}" alt="sss"/>-->
-<!--                </div>-->
-
-<!--            </td>-->
-<!--            <td sec:authorize="isAuthenticated()">-->
-<!--                <a th:href="@{'/posts/show/' + ${post.post_id}}"  th:text="Просмотреть"/>-->
-<!--                <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"-->
-<!--                   th:href="@{'/posts/addOrUpdate/edit/' + ${post.post_id}}" th:text="Редактировать"-->
-<!--                   class="text-success" style="margin-left: 15px"/>-->
-<!--                <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"-->
-<!--                   th:href="@{'/posts/delete/' + ${post.post_id}}" th:text="Удалить" class="text-danger"-->
-<!--                   style="margin-left: 15px"/>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--    </table>-->
-
-<!--    <br>-->
-<!--    <form th:action="@{/posts/addOrUpdate/add}">-->
-<!--        <button type="submit" sec:authorize="isAuthenticated()" class="btn btn-success">Добавить запись</button>-->
-<!--    </form>-->
-<!--    <h3 style="margin-top: 20px" >Отфильтровать</h3>-->
-<!--    <form th:action="@{/posts/filter}" method="get">-->
-<!--        <div class="form-group">-->
-<!--            <label for="text">Текст:</label>-->
-<!--            <input type="text" class="form-control" id="text" name="text" th:value="${text}">-->
-<!--        </div>-->
-<!--        <h5 style="margin-top: 20px">Дата создания </h5>-->
-<!--        <div class="form-group">-->
-<!--            <label for="start">От</label>-->
-<!--            <input type="date" class="form-control" id="start" name="start" th:value="${start}">-->
-<!--        </div>-->
-<!--        <div class="form-group">-->
-<!--            <label for="end">До</label>-->
-<!--            <input type="date" class="form-control" id="end" name="end" th:value="${end}">-->
-<!--        </div>-->
-<!--        <button class="btn btn-primary" sec:authorize="isAnonymous()" disabled>Отфильтровать</button>-->
-<!--        <button type="submit" class="btn btn-primary" sec:authorize="isAuthenticated()">Отфильтровать</button>-->
-
-<!--    </form>-->
-<!--    <form th:action="@{/}">-->
-<!--        <button style='margin-top: 10px' type="submit" class="btn btn-danger" sec:authorize="isAuthenticated()">Сбросить</button>-->
-<!--        <button style='margin-top: 10px' sec:authorize="isAnonymous()" disabled class="btn btn-danger">Сбросить</button>-->
-<!--    </form>-->
-<!--    <br>-->
-<!--    <h4>Самые просматриваемы посты</h4>-->
-<!--    <ul sec:authorize="isAuthenticated()" th:if="${topPosts != null}" style="list-style-type: none; padding: 0; margin: 0;">-->
-<!--        <li  th:each="topPost : ${topPosts} " style='margin-top: 5px; margin-bottom: 25px'>-->
-<!--            <span th:text="'Текст: &#34' + ${topPost.post_text} + '&#34,'" ></span>-->
-<!--            <span th:text="'Количество просмотров: ' + ${topPost.views} "></span>-->
-<!--        </li>-->
-<!--    </ul>-->
-<!--    <div sec:authorize="isAnonymous()" >Авторизуйтесь чтобы увидеть самые просматриваемы посты</div>-->
-<!--</div>-->
 </body>

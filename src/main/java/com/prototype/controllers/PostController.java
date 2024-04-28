@@ -52,20 +52,31 @@ public class PostController {
         Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
         List<Post> list = postPage.toList();
         model.addAttribute("posts", list);
-        model.addAttribute("filterUrl", "/");
-        model.addAttribute("totalPages", postPage.getTotalPages());
+//        model.addAttribute("filterUrl", "/");
+//        model.addAttribute("totalPages", postPage.getTotalPages());
         model.addAttribute("page", page);
         return "posts";
     }
 
-    @GetMapping("/loadMore")
-    public String loadMore( Model model,@RequestParam(defaultValue = "0") int page) {
-        // Получить данные следующей страницы
-        Page<Post> posts = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
-        // Добавить данные к модели и вернуть представление
-        model.addAttribute("posts", posts.toList());
-        return "posts";
-    }
+//    @GetMapping("posts/loadMore")
+//    @Transactional(readOnly = true)
+//    public String loadMorePosts(Principal principal, Model model, @RequestParam(defaultValue = "0") int page) {
+//        Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 3).withSort(Sort.by(Sort.Direction.ASC, "postId")));
+//        List<Post> list = postPage.toList();
+//        model.addAttribute("posts", list);
+////        model.addAttribute("filterUrl", "/loadMore");
+////        model.addAttribute("totalPages", postPage.getTotalPages());
+//        model.addAttribute("page", page);
+//        return "posts"; // Возвращаем только фрагмент с записями
+//    }
+//    @GetMapping("/loadMore")
+//    public String loadMore( Model model,@RequestParam(defaultValue = "0") int page) {
+//        // Получить данные следующей страницы
+//        Page<Post> posts = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
+//        // Добавить данные к модели и вернуть представление
+//        model.addAttribute("posts", posts.toList());
+//        return "posts";
+//    }
     @GetMapping("/posts")
     public String redirect() {
         return "redirect:/";
