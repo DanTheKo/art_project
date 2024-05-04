@@ -3,44 +3,72 @@
 <head>
     <meta charset="utf-8"/>
     <title>Информация о записи</title>
+<!--    <link rel="stylesheet" href="styles.css">-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <style>
+        .images{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .image-frame {
+            /*border: 1px solid #ccc;*/
+            /*border-radius: 5px;*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 7px;
+            width: 100%;
+            height: auto;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .image {
+            /*padding: 15px;*/
+            /*margin: auto;*/
+            max-height: 600px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
 <div class="container">
     <div th:replace="~{navigation :: navi('Home')}"></div>
-    <table class="table">
-        <tbody>
-        <tr>
-            <th>ID</th>
-            <td th:text="${post.getPostId()}"></td>
-        </tr>
-        <tr>
-            <th>Текст записи</th>
-            <td th:text="${post.getCreatedAt()}"></td>
-        </tr>
-        <tr>
-            <th>Время создания</th>
-            <td th:text="${post.getCreatedAt()}"></td>
-        </tr>
-        <tr>
-            <th>Пользователь</th>
-            <td th:text="${post.user.getUsername()}"></td>
-        </tr>
-    </table>
-    <div style="width: 1000px" class="container">
-        <div class="card-body">
-            <div style="display: flex" class="image-frame" th:each="image : ${post.getImages()}">
-                <img style="padding: 15px; margin: auto; max-height: 600px; border-radius: 25px; " class="img-fluid"
-                     th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}"
-                     alt="Post Image"/>
+    <div style="width: 100%" class="container">
+        <div id="postList">
+            <div style="background: #f3f3f3" class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title" th:text="${post.getUser().getUsername()}"></h5>
+                    <p class="card-text text-muted" th:text="${post.getCreatedAtConverted()}"></p>
+                </div>
+                <div class="card-body">
+                    <p class="" style="font-size: 1.5rem;" th:text="${post.getPostText()}"></p>
+                    <div class="images">
+                        <div class="image-frame" th:each="image : ${post.getImages()}">
+                            <img class="image img-fluid"
+                                 th:src="@{'data:image/;base64,'+${image.ConvertBytesToBase64()}}"
+                                 alt="Post Image"/>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row-reverse" class="card-header">
+                    <p style="margin: unset" class="card-text text-muted" th:text="${post.getViews()}"></p>
+                    <p style="margin: unset" class="card-text text-muted">Просмотры:&#160</p>
+                </div>
+                <div style="color: white" class="card-footer ">
+                    <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
+                       th:href="@{'/posts/addOrUpdate/edit/' + ${post.getPostId()}}"
+                       class="btn btn-dark">Редактировать</a>
+                    <a th:if="${#authorization.expression('hasRole(''ADMIN'')') || post.user.getUsername() == #authorization.authentication.getName()}"
+                       th:href="@{'/posts/delete/' + ${post.getPostId()}}" class="btn btn-dark">Удалить</a>
+                </div>
             </div>
         </div>
     </div>
     <form th:action="@{/}">
-        <button style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>
+        <button style='margin: 10px 15px' type="submit" class="btn btn-dark">На главную</button>
     </form>
     <!--    <button onclick="save()" style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>-->
 

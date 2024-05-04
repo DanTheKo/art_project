@@ -21,7 +21,7 @@ public class UserService {
     @Transactional
     public User getUserByUserName(String username) {
         User user = userRepository.findUserByUsername(username);
-        if (user == null) throw  new UsernameNotFoundException(username);
+        if (user == null) return null;;
         return user;
     }
     public List<User> getAllUsers() {

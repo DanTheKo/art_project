@@ -17,38 +17,41 @@
 
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input th:field="*{getPostId()}" placeholder="ID (*)" class="form-control" type="hidden"/>
+            <input th:field="*{postId}" placeholder="ID (*)" class="form-control" type="hidden"/>
         </div>
 
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input th:field="*{getPostText()}" placeholder="Текст записи (*)" required class="form-control"/>
+            <input th:field="*{postText}" placeholder="Текст записи (*)" required class="form-control"/>
         </div>
 
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input type="datetime-local" th:field="*{getCreatedAt()}" step="1" id="created_at" placeholder="Время создания (*)" required class="form-control"/>
+            <input type="datetime-local" th:field="*{createdAt}" step="1" id="created_at" placeholder="Время создания (*)" required class="form-control"/>
+        </div>
+        <div style="margin-bottom: 25px" class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+            <input th:name="username" th:value="${#authorization.authentication.getName()}" id="username" placeholder="Пользователь (*)" class="form-control" type="hidden"/>
         </div>
 
         <div class="input-file-row">
             <label class="input-file">
-                <input type="file" name="file" multiple accept="image/*">
+                <input type="file" name="files" multiple accept="image/*">
                 <span>Выберите файл</span>
             </label>
             <div class="input-file-list"></div>
         </div>
 
 
-        <div style="margin-bottom: 25px" class="input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input th:name="username" th:value="${#authorization.authentication.getName()}" id="username" placeholder="Пользователь (*)" class="form-control" type="hidden"/>
-        </div>
-        <div style="margin-top: 10px" class="form-group">
-            <div class="col-sm-6 controls">
-                <button  style='margin-left: 0' type="submit" class="btn btn-success" >Добавить</button>
+        <div style="display: inline-block; width: auto">
+            <div style="margin-top: 10px" class="form-group">
+                <div class="col-sm-6 controls">
+                    <button  style='margin-left: 0' type="submit" class="btn btn-dark" >Добавить</button>
+                </div>
             </div>
         </div>
     </form>
+
 
 
     <form th:if="${post.getPostText() != null}" th:action=" @{/posts/addOrUpdate/edit/update}"
@@ -57,26 +60,32 @@
 
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input th:field="*{getPostId()}" placeholder="ID (*)" class="form-control" type="hidden"/>
+            <input th:field="*{postId}" placeholder="ID (*)" class="form-control" type="hidden"/>
         </div>
 
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input th:field="*{getPostText()}" placeholder="Текст записи (*)" class="form-control"/>
+            <input th:field="*{postText}" placeholder="Текст записи (*)" class="form-control"/>
         </div>
         <div style="margin-bottom: 25px" class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-            <input type="datetime-local" th:name="created_at" th:value="${post.getCreatedAt()}" step="1" id="created_at2" placeholder="Время создания (*)" required class="form-control"/>
+            <input type="datetime-local" th:name="createdAt" th:value="${post.getCreatedAt()}" step="1" id="created_at2" placeholder="Время создания (*)" required class="form-control"/>
         </div>
-        <div style="margin-top: 10px" class="form-group">
-            <div class="col-sm-6 controls">
-                <button style='margin-left: 0' type="submit" class="btn btn-success">Сохранить изменения</button>
+        <div style="display: inline-block; width: auto">
+            <div style="margin-top: 10px" class="form-group">
+                <div class="col-sm-6 controls">
+                    <button style='margin-left: 0' type="submit" class="btn btn-dark">Сохранить изменения</button>
+                </div>
             </div>
         </div>
+
     </form>
-    <form th:action="@{/}">
-        <button style='margin: 10px 15px' type="submit" class="btn btn-danger">На главную</button>
-    </form>
+    <div style="display: inline-block; width: auto">
+        <form th:action="@{/}">
+            <button type="submit" class="btn btn-dark">На главную</button>
+        </form>
+    </div>
+
 </div>
 </body>
 </html>

@@ -9,7 +9,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 </head>
 <body>
-
+<div th:replace="~{navigation :: navi('Home')}"></div>
 <div class="container" style="width: 25%">
     <h2 class="mt-5" style="text-align: center">Вход</h2>
     <form class="align-middle" th:action="@{/authenticateTheUser}" method="POST">

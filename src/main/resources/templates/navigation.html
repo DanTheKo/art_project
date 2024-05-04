@@ -13,44 +13,25 @@
 <body style="background: #ffffff">
 <div class="fluid-container" th:fragment="navi(activeTab)">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark ">
-        <a style="color: white;" class="navbar-brand" th:href="@{/posts}">Название</a>
+        <a style="color: white;" class="navbar-brand" th:href="@{/posts}">Главная</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div style="color: white;" class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li sec:authorize="isAuthenticated()" class="nav-item">
-                    <a class="nav-link" style="color: white" th:text="${@userService.getRealNameByUsername(#authentication.name)}"></a>
-                </li>
-                <li sec:authorize="isAuthenticated()" class="nav-item"
-                    th:classappend="${activeTab == 'posts' ? 'active' : ''}">
-                    <a class="btn btn-dark" style="color: white" th:href="@{/posts/addOrUpdate/add}">Добавить запись</a>
-                </li>
-                <li sec:authorize="isAnonymous()"  style="margin-left: 15px" class="nav-item">
-                    <a class="btn btn-dark" th:href="@{/posts/login}">Войти</a>
-                    <a class="btn btn-dark" th:href="@{/posts/registration}">Зарегистрироваться</a>
-<!--                    <form class="align-middle" th:action="@{/authenticateTheUser}" method="POST">-->
-<!--                        <div class="input-group-prepend">-->
-<!--                            <input class="form-control" type="text" placeholder="Login" name="username"-->
-<!--                                   aria-describedby="inputGroup-sizing-sm">-->
-<!--                            <input class="form-control" type="password" placeholder="Password" name="password"-->
-<!--                                   aria-describedby="inputGroup-sizing-sm">-->
-<!--                            <button class="btn btn-info" type="submit">Sign in</button>-->
-<!--                        </div>-->
-<!--                    </form>-->
-                </li>
-                <li sec:authorize="isAuthenticated()" class="nav-item">
-                    <form th:action="@{/logout}" method="post">
-                        <button class="btn btn-dark" type="submit">Выйти</button>
-                    </form>
-                </li>
-<!--                <li class="nav-item">-->
-<!--                    <div th:if="${param.error} != null">-->
-<!--                        <span style="color: white;padding: 10px">Invalid username and password.</span>-->
-<!--                    </div>-->
-<!--                </li>-->
-            </ul>
+            <div sec:authorize="isAuthenticated()" th:classappend="${activeTab == 'posts' ? 'active' : ''}">
+                <a class="btn btn-dark" style="color: white" th:href="@{/posts/addOrUpdate/add}">Добавить запись</a>
+            </div>
+            <div style="margin-left: auto;  display: flex" sec:authorize="isAuthenticated()" class="nav-item">
+                <a class="nav-link" style="color: white" th:text="${@userService.getRealNameByUsername(#authentication.name)}"></a>
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn btn-dark" type="submit">Выйти</button>
+                </form>
+            </div>
+            <div style="margin-left: auto;  display: flex" sec:authorize="isAnonymous()" class="nav-item">
+                <a class="btn btn-dark" th:href="@{/posts/login}">Войти</a>
+                <a class="btn btn-dark" th:href="@{/posts/registration}">Зарегистрироваться</a>
+            </div>
         </div>
     </nav>
     <div class="visible-md" style="height:80px;"></div>

@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -16,25 +14,34 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "post")
-public class Post {
-    public Post(String post_text, LocalDateTime createdAt) {
-        this.postText = post_text;
+@Table(name = "comment")
+public class Comment {
+    public Comment(String text, LocalDateTime createdAt) {
+        this.text = text;
         this.createdAt = createdAt;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name  = "post_id")
-    private long postId;
+    @Column(name  = "comment_id")
+    private long id;
 
     @Getter
-    @Column(name  = "post_text", columnDefinition="TEXT")
-    private String postText;
+    @Column(name  = "comment_text", columnDefinition="TEXT")
+    private String text;
 
     @Getter
     @Column(name  = "created_at")
     private LocalDateTime createdAt;
 
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "username")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
     public String getCreatedAtConverted() {
         try {
             return "Опубликовано " + createdAt.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"));
@@ -45,19 +52,7 @@ public class Post {
 
     }
 
-    @Column(name = "views")
-    private Integer views;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Image> images;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Comment> comments;
-
-    @ManyToOne
-    @JoinColumn(name = "username")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
 
 
 

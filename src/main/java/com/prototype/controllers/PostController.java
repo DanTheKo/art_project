@@ -1,9 +1,7 @@
 package com.prototype.controllers;
 
-import com.prototype.entities.Authority;
-import com.prototype.entities.Image;
-import com.prototype.entities.Post;
-import com.prototype.entities.User;
+import com.prototype.entities.*;
+import com.prototype.services.CommentService;
 import com.prototype.services.ImageService;
 import com.prototype.services.PostService;
 import com.prototype.services.UserService;
@@ -23,6 +21,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class PostController {
@@ -30,6 +29,7 @@ public class PostController {
     private PostService postService;
     private UserService userService;
     private ImageService imageService;
+    private CommentService commentService;
     private UserDetailsService userDetailsService;
     @Autowired
     public void setPostService(PostService postService) {
@@ -46,10 +46,15 @@ public class PostController {
         this.imageService = imageService;
     }
 
+    @Autowired
+    public void setCommentService(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
     @GetMapping("/")
     @Transactional(readOnly = true)
     public String showPostsList( Principal principal, Model model, @RequestParam(defaultValue = "0") int page) {
-        Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
+        Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 5).withSort( Sort.by(Sort.Direction.DESC,"postId")));
         List<Post> list = postPage.toList();
         model.addAttribute("posts", list);
 //        model.addAttribute("filterUrl", "/");
@@ -57,26 +62,6 @@ public class PostController {
         model.addAttribute("page", page);
         return "posts";
     }
-
-//    @GetMapping("posts/loadMore")
-//    @Transactional(readOnly = true)
-//    public String loadMorePosts(Principal principal, Model model, @RequestParam(defaultValue = "0") int page) {
-//        Page<Post> postPage = postService.getAllPostsUser(PageRequest.of(page, 3).withSort(Sort.by(Sort.Direction.ASC, "postId")));
-//        List<Post> list = postPage.toList();
-//        model.addAttribute("posts", list);
-////        model.addAttribute("filterUrl", "/loadMore");
-////        model.addAttribute("totalPages", postPage.getTotalPages());
-//        model.addAttribute("page", page);
-//        return "posts"; // Возвращаем только фрагмент с записями
-//    }
-//    @GetMapping("/loadMore")
-//    public String loadMore( Model model,@RequestParam(defaultValue = "0") int page) {
-//        // Получить данные следующей страницы
-//        Page<Post> posts = postService.getAllPostsUser(PageRequest.of(page, 3).withSort( Sort.by(Sort.Direction.ASC,"postId")));
-//        // Добавить данные к модели и вернуть представление
-//        model.addAttribute("posts", posts.toList());
-//        return "posts";
-//    }
     @GetMapping("/posts")
     public String redirect() {
         return "redirect:/";
@@ -111,37 +96,49 @@ public class PostController {
     @PostMapping("/posts/registration/newUser")
     public String newUser(@ModelAttribute(value = "user")User user, Model model) {
 
-        Authority authority = new Authority();
-        authority.setUser(user);
-        authority.setAuthority("ROLE_USER");
-        user.setAuthority(authority);
-        user.setRealName(user.getUsername());
-        userService.encode(user);
-        userService.saveUser(user);
-        return "redirect:/posts/login";
+        if(userService.getUserByUserName(user.getUsername()) == null){
+            Authority authority = new Authority();
+            authority.setUser(user);
+            authority.setAuthority("ROLE_USER");
+            user.setAuthority(authority);
+            user.setRealName(user.getUsername());
+            user.setPosts(new ArrayList<Post>());
+            userService.encode(user);
+            userService.saveUser(user);
+            return "redirect:/posts/login";
+        }
+        return "redirect:/posts/registration?error";
+
     }
 
     @PostMapping("/posts/addOrUpdate/add")
     @Transactional
     public String addPost(@ModelAttribute(value = "post") Post post,
                           @RequestParam("username") String username,
-                          @RequestParam("file") MultipartFile file) throws IOException {
+                          @RequestParam("files") MultipartFile[] files) throws IOException {
         post.setViews(0);
         post.setUser(userService.getUserByUserName(username));
-        Image imageObj = new Image();
-        imageObj.setFileName(file.getOriginalFilename());
-        imageObj.setData(file.getBytes());
-        imageObj.setPost(post);
-        imageObj.setContentType("type");
-        imageObj.setData(file.getBytes());
+
         List<Image> images = new ArrayList<>();
-        images.add(imageObj);
-        post.setImages(images);
+        for (MultipartFile file : files) {
+            if(!Objects.requireNonNull(file.getOriginalFilename()).isBlank()){
+                Image imageObj = new Image();
+                imageObj.setFileName(file.getOriginalFilename());
+                imageObj.setData(file.getBytes());
+                imageObj.setPost(post);
+                imageObj.setContentType("type");
+                images.add(imageObj);
+            }
+
+        }
+        if(!images.isEmpty()){
+            post.setImages(images);
+        }
+
         postService.add(post);
 
         return "redirect:/posts";
     }
-
     @GetMapping("/posts/addOrUpdate/add")
     @Transactional
     public String getAddPost(Principal principal, Model model) {
@@ -150,6 +147,7 @@ public class PostController {
         }
         return "addOrUpdate";
     }
+
 
     @GetMapping("/posts/addOrUpdate/edit/{id}")
     public String editPostGet(Model model, @PathVariable(value = "id") Integer id) {
@@ -162,9 +160,26 @@ public class PostController {
     public String editPost(@ModelAttribute(value = "post") Post updated) {
         Post post = postService.getById(updated.getPostId());
         postService.update(post.getPostId(), updated);
-        return "redirect:/posts/filter?text=";
+        return "redirect:/posts";
     }
 
+//    @GetMapping("/posts/comment/add/{id}")
+//    public String addComment(Model model, @PathVariable(value = "id") Integer id){
+//        Post post = postService.getById(id);
+//        model.addAttribute("post", post);
+//        model.addAttribute("comment", new Comment());
+//        return "/posts/comment/add";
+//    }
+//    @PostMapping("/posts/comment/add")
+//    public String addComment(@ModelAttribute(value = "comment") Comment comment,
+//                             @ModelAttribute(value = "post") Post post,
+//                             @RequestParam("username") String username){
+//        comment.setPost(post);
+//        comment.setUser(userService.getUserByUserName(username));
+//        commentService.saveComment(comment);
+//
+//        return "redirect:/posts";
+//    }
     @GetMapping("/posts/show/{id}")
     public String showOnePost(Model model, @PathVariable(value = "id") Integer id) {
         Post post = postService.getById(id);
@@ -193,4 +208,6 @@ public class PostController {
         postService.delete(post);
         return "redirect:/posts";
     }
+
+
 }
