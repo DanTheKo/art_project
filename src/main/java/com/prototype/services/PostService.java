@@ -99,6 +99,7 @@ public class PostService {
         if (post != null) {
             post.setPostText(updated.getPostText());
             post.setCreatedAt(updated.getCreatedAt());
+            post.setImages(updated.getImages());
             repository.save(post);
         }
     }

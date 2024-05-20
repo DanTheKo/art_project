@@ -1,6 +1,7 @@
 package com.prototype.services;
 
 import com.prototype.entities.Comment;
+import com.prototype.entities.Post;
 import com.prototype.repositories.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,8 @@ public class CommentService {
 
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
+    }
+    public void delete(Comment comment) {
+        commentRepository.delete(comment);
     }
 }

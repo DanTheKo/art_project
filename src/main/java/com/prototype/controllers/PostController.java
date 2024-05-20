@@ -5,6 +5,7 @@ import com.prototype.services.CommentService;
 import com.prototype.services.ImageService;
 import com.prototype.services.PostService;
 import com.prototype.services.UserService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Controller
 public class PostController {
@@ -163,12 +165,24 @@ public class PostController {
         return "redirect:/posts";
     }
 
+    @GetMapping("/posts/addOrUpdate/edit/{id}/del_img/{img_id}")
+    public String deleteImage(@PathVariable(value = "id") Long id,
+                              @PathVariable(value = "img_id") Long img_id) {
+        Post post = postService.getById(id);
+        List<Image> images = post.getImages();
+        Image image = imageService.getImageById(img_id);
+        images.remove(image);
+        postService.update(post.getPostId(), post);
+        imageService.deleteImage(image);
+        return "redirect:/posts";
+    }
+
 //    @GetMapping("/posts/comment/add/{id}")
 //    public String addComment(Model model, @PathVariable(value = "id") Integer id){
 //        Post post = postService.getById(id);
 //        model.addAttribute("post", post);
 //        model.addAttribute("comment", new Comment());
-//        return "/posts/comment/add";
+//        return "/posts";
 //    }
 //    @PostMapping("/posts/comment/add")
 //    public String addComment(@ModelAttribute(value = "comment") Comment comment,
@@ -186,6 +200,7 @@ public class PostController {
         postService.incrementViews(post);
         model.addAttribute("post", post);
         return "post-info";
+
     }
 
     @PostMapping("/authenticateTheUser")
@@ -208,6 +223,11 @@ public class PostController {
         postService.delete(post);
         return "redirect:/posts";
     }
-
+//    @GetMapping("/posts/deleteComment/{id}")
+//    public String deleteComment(@PathVariable(value = "id") Long id) {
+//        Comment comment = commentService.getCommentById(id);
+//        commentService.delete(comment);
+//        return "redirect:/posts";
+//    }
 
 }

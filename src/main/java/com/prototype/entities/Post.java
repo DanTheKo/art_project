@@ -58,8 +58,4 @@ public class Post {
     @JoinColumn(name = "username")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
-
-
-
-
 }

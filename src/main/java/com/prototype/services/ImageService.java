@@ -36,8 +36,11 @@ public class ImageService {
         return imageRepository.findAll();
     }
 
+    @Transactional
     public void deleteImageById(Long id) {
-        imageRepository.deleteById(id);
+        Image image = imageRepository.getImageById(id);
+        image.getData();
+        imageRepository.delete(image);
     }
 
     @Transactional
@@ -52,7 +55,6 @@ public class ImageService {
 
         return imageRepository.save(image);
     }
-    @Transactional
     public void deleteImage(Image image) {
         if (image != null) {
             imageRepository.delete(image);

@@ -26,5 +26,4 @@ public class Authority {
     @JoinColumn(name = "username", referencedColumnName = "username")
     private User user;
 
-
 }
